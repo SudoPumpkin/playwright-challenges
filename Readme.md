@@ -19,7 +19,7 @@ Node.js (v18 or higher)
 ## Setup
 
 ```bash
-git clone https://github.com/vasu31dev/playwright-challenges.git
+git clone https://github.com/SudoPumpkin/playwright-challenges.git
 cd playwright-challenges
 ```
 
