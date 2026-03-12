@@ -1,50 +1,86 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
+import { Challenge1Helpers, Challenge2Helpers, Challenge3Helpers, Challenge4Helpers } from './helpers/page-helpers';
 
-//Fix the below scripts to work consistently and do not use static waits. Add proper assertions to the tests
-// Login 3 times sucessfully
-test('Login multiple times sucessfully @c1', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge1.html']`).click();
-  // Login multiple times
+// Challenge 1: Test logging in 3 times in a row without page refresh
+// Each login should display a success message, then the form should reset automatically
+test('Login multiple times successfully @c1', async ({ page }) => {
+  const helper = new Challenge1Helpers(page);
+  await helper.navigate();
+
+  // Loop through 3 login attempts to verify the form can handle multiple submissions
   for (let i = 1; i <= 3; i++) {
-    await page.locator('#email').fill(`test${i}@example.com`);
-    await page.locator('#password').fill(`password${i}`);
-    await page.locator('#submitButton').click();
-    await expect(page.locator(`#successMessage`)).toContainText('Successfully submitted!');
-    await expect(page.locator(`#successMessage`)).toContainText(`Email: test${i}@example.com`);
-    await expect(page.locator(`#successMessage`)).toContainText(`Password: password${i}`);
+    await helper.login(`test${i}@example.com`, `password${i}`);
+    await helper.verifySuccessMessage(`test${i}@example.com`, `password${i}`);
+    // Wait for the success message to disappear and form to reset before next login
+    await helper.waitForFormReset();
   }
 });
 
-// Login and logout successfully with animated form and delayed loading
-test('Login animated form and logout sucessfully @c2', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge2.html']`).click();
-  await page.locator('#email').fill(`test1@example.com`);
-  await page.locator('#password').fill(`password1`);
-  await page.locator('#submitButton').click();
-  await page.locator('#menuButton').click();
-  await page.locator('#logoutOption').click();
+// Challenge 2: Test a form with an animated submit button and delayed menu initialization
+// The submit button has a 7-second slide animation before it can be clicked
+// After login, the menu button takes 1 second to initialize before it's clickable
+test('Login animated form and logout successfully @c2', async ({ page }) => {
+  const helper = new Challenge2Helpers(page);
+  await helper.navigate();
+
+  await helper.fillLoginForm('test1@example.com', 'password1');
+
+  // Wait for the submit button's slide animation to finish
+  // The button slides from left to right over 7 seconds and is only clickable after animation completes
+  await helper.waitForButtonAnimation();
+  await helper.submitForm();
+
+  // Wait for the menu button to become fully initialized and clickable
+  // After successful login, there's a 1-second delay before the menu button is ready
+  // We check for the data-initialized="true" attribute which signals it's safe to click
+  await helper.waitForMenuButtonReady();
+
+  await helper.logout();
+
+  // Verify the user is logged out by checking the login form is visible again
+  await helper.verifyLogoutSuccess();
 });
 
-// Fix the Forgot password test and add proper assertions
+// Challenge 3: Test the forgot password flow with form transitions
+// The form changes from "Login" to "Reset Password" when clicking the forgot password link
 test('Forgot password @c3', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge3.html']`).click();
-  await page.getByRole('button', { name: 'Forgot Password?' }).click();
-  await page.locator('#email').fill('test@example.com');
-  await page.getByRole('button', { name: 'Reset Password' }).click();
-  await expect(page.getByRole('heading', { name: 'Success!' })).toBeVisible();
-  await expect(page.locator('#mainContent')).toContainText('Password reset link sent!');
+  const helper = new Challenge3Helpers(page);
+  await helper.navigate();
+
+  await helper.clickForgotPassword();
+
+  // Wait for the form to transition from the login form to the password reset form
+  // The heading changes from "Login" to "Reset Password" during this transition
+  await helper.waitForResetPasswordForm();
+
+  // Fill in the email field in the password reset form and submit it
+  await helper.fillEmailAndSubmit('test@example.com');
+
+  // Verify the success page appears with confirmation message
+  await helper.verifySuccessMessage('test@example.com');
 });
 
-//Fix the login test. Hint: There is a global variable that you can use to check if the app is in ready state
+// Challenge 4: Test login when the app uses dynamic script loading
+// jQuery is loaded with a defer attribute and takes 500ms to initialize
+// The form submission handlers are only attached after isAppReady becomes true
 test('Login and logout @c4', async ({ page }) => {
-  await page.goto('/');
-  await page.locator(`//*[@href='/challenge4.html']`).click();
-  await page.locator('#email').fill(`test@example.com`);
-  await page.locator('#password').fill(`password`);
-  await page.locator('#submitButton').click();
-  await page.locator('#profileButton').click();
-  await page.getByText('Logout').click();
+  const helper = new Challenge4Helpers(page);
+  await helper.navigate();
+
+  // Wait for the jQuery library to load and the app to finish initialization
+  // We check the global window.isAppReady variable which becomes true after 500ms
+  // Also verify the email input is enabled before proceeding
+  await helper.waitForAppReady();
+
+  // Type the email and password with a small delay between keystrokes
+  // This gives the form handlers time to fully attach after initialization
+  await helper.login('test@example.com', 'password');
+
+  // Verify the login was successful by checking the user profile is now visible
+  await helper.verifyLoginSuccess();
+
+  await helper.logout();
+
+  // Verify the logout worked by checking the login form is visible again
+  await helper.verifyLogoutSuccess();
 });
