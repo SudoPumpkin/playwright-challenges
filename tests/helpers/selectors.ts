@@ -6,10 +6,10 @@
 export const selectors = {
   // Navigation
   nav: {
-    challenge1: 'Challenge 1',
-    challenge2: 'Challenge 2',
-    challenge3: 'Challenge 3',
-    challenge4: 'Challenge 4',
+    challenge1: 'Try Challenge 1',
+    challenge2: 'Try Challenge 2',
+    challenge3: 'Try Challenge 3',
+    challenge4: 'Try Challenge 4',
   },
 
   // Challenge 1 - Login multiple times

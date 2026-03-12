@@ -26,12 +26,6 @@ export class Challenge1Helpers {
    * @param password - User password
    * @returns Promise that resolves when form is submitted
    */
-  /**
-   * Fill login form and submit
-   * @param email - User email address
-   * @param password - User password
-   * @returns Promise that resolves when form is submitted
-   */
   async login(email: string, password: string) {
     // Why: Fill form fields and click submit - standard login flow
     // Using .fill() is fast enough here because there are no timing issues in Challenge 1
@@ -40,12 +34,6 @@ export class Challenge1Helpers {
     await this.page.locator(selectors.challenge1.submitButton).click();
   }
 
-  /**
-   * Verify the success message appears with correct user data
-   * @param email - Expected email in success message
-   * @param password - Expected password in success message
-   * @returns Promise that resolves when all assertions pass
-   */
   /**
    * Verify the success message appears with correct user data
    * @param email - Expected email in success message
