@@ -91,6 +91,7 @@ export class Challenge2Helpers {
     // We use evaluate() to access the browser's Animation API to detect when animation completes
     // This is better than a static wait because it's precise and returns immediately when animation ends
     const submitButton = this.page.locator(selectors.challenge2.submitButton);
+    // eslint-disable-next-line playwright/no-eval
     await submitButton.evaluate(button => {
       return new Promise<void>(resolve => {
         if (button.getAnimations().length === 0) {
