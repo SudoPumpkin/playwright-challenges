@@ -20,6 +20,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     actionTimeout: 5 * 1000,
     navigationTimeout: 15 * 1000,
   },
