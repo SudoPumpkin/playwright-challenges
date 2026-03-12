@@ -74,10 +74,24 @@ This project includes several tests to ensure the functionality of the animated 
 
 ### Running Tests
 
-To run the tests, use the following command:
+To run all tests in all projects (runs each test twice - once in headed mode, once in headless):
 
 ```bash
 npx playwright test
+```
+
+Run tests in a specific project:
+
+```bash
+# Headless mode (faster, recommended for local testing)
+npx playwright test --project=chromiumheadless
+# or
+npm run test:chromium-headless
+
+# Headed mode (opens browser window, useful for debugging)
+npx playwright test --project=chromium
+# or
+npm run test
 ```
 
 Run specific challenges using tags:
@@ -123,7 +137,7 @@ Since the tests require a running server at `http://localhost:3000`, the workflo
 
 1. Starts the server in the background with `npm start &`
 2. Waits for the server to be ready using `wait-on` (30-second timeout)
-3. Runs the Playwright tests
+3. Runs the Playwright tests in headless mode (`--project=chromiumheadless`)
 4. The server shuts down automatically when the job completes
 
 ### Viewing CI Results
@@ -174,6 +188,8 @@ docker run --rm --network host -v $(pwd):/work -w /work -it mcr.microsoft.com/pl
 1. **No Static Waits**: We use smart waits (`waitForFunction`, `toBeVisible`, event listeners) instead of `page.waitForTimeout()`
 2. **Page Object Model**: Helper classes keep tests clean and maintainable
 3. **Centralized Selectors**: All locators in one file for easy updates
-4. **Multiple Assertions**: Verify multiple aspects of success (visibility, content, state changes)
-5. **Detailed Comments**: Every method explains WHY, not just WHAT
-6. **CI/CD Ready**: Tests run reliably in containerized environments with proper artifact management
+4. **Type Safety**: Global type declarations in `tests/global.d.ts` for custom Window properties
+5. **Multiple Assertions**: Verify multiple aspects of success (visibility, content, state changes)
+6. **Detailed Comments**: Every method explains WHY, not just WHAT
+7. **CI/CD Ready**: Tests run reliably in containerized environments with proper artifact management
+8. **Stable Selectors**: Prefer ID-based selectors over text-based for resilience to UI changes

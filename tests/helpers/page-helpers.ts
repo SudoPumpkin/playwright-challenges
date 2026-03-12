@@ -90,6 +90,9 @@ export class Challenge2Helpers {
     // Why: The submit button has a 7-second CSS animation that slides it across the screen
     // We use evaluate() to access the browser's Animation API to detect when animation completes
     // This is better than a static wait because it's precise and returns immediately when animation ends
+    // Note: We can't rely on Playwright's built-in actionability checks here because the button
+    // is visible and attached to DOM during animation, but not in the correct position to click.
+    // Using the animationend event is the most reliable way to wait for CSS animations.
     const submitButton = this.page.locator(selectors.challenge2.submitButton);
     // eslint-disable-next-line playwright/no-eval
     await submitButton.evaluate(button => {
@@ -230,8 +233,8 @@ export class Challenge4Helpers {
     // Why: Click profile button to open dropdown, verify logout option appears, then click it
     // The visibility check ensures the dropdown menu is fully rendered before clicking
     await this.page.locator(selectors.challenge4.profileButton).click();
-    await expect(this.page.getByText(selectors.challenge4.logoutButton)).toBeVisible();
-    await this.page.getByText(selectors.challenge4.logoutButton).click();
+    await expect(this.page.locator(selectors.challenge4.logoutButton)).toBeVisible();
+    await this.page.locator(selectors.challenge4.logoutButton).click();
   }
 
   async verifyLogoutSuccess() {

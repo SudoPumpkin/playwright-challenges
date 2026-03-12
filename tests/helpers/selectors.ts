@@ -48,6 +48,6 @@ export const selectors = {
     userProfile: '#userProfile',
     profileButton: '#profileButton',
     loginForm: '#loginForm',
-    logoutButton: 'Logout',
+    logoutButton: '#logoutOption',
   },
 };
