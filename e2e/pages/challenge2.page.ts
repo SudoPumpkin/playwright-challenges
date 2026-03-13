@@ -79,9 +79,9 @@ export class Challenge2Page extends BasePage {
    */
   async waitForButtonAnimation() {
     // eslint-disable-next-line playwright/no-eval
-    await this.submitButton.evaluate(button => {
+    await this.submitButton.evaluate(async button => {
       const animations = button.getAnimations();
-      return Promise.all(animations.map(animation => animation.finished));
+      await Promise.all(animations.map(animation => animation.finished));
     });
   }
 

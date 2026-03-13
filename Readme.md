@@ -103,7 +103,7 @@ SLOW_MO=100
 - Both `server.js` and `playwright.config.ts` automatically load environment variables from `.env`
 - Variables are accessible via `process.env.VARIABLE_NAME`
 - **`BASE_URL` automatically derives from `PORT`** when not explicitly set, keeping them in sync
-- The `webServer` configuration only starts when `BASE_URL` contains `localhost` or `127.0.0.1`
+- The `webServer` configuration only starts when `BASE_URL` hostname is `localhost`, `127.0.0.1`, or `[::1]` (IPv6)
 - Fallback defaults are used when variables aren't set
 
 ### Security Best Practices

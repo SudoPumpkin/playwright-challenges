@@ -100,9 +100,9 @@ export class Challenge2Helpers {
     // - If no animations are running, Promise.all([]) resolves immediately (idempotent)
     const submitButton = this.page.locator(selectors.challenge2.submitButton);
     // eslint-disable-next-line playwright/no-eval
-    await submitButton.evaluate(button => {
+    await submitButton.evaluate(async button => {
       const animations = button.getAnimations();
-      return Promise.all(animations.map(animation => animation.finished));
+      await Promise.all(animations.map(animation => animation.finished));
     });
   }
 

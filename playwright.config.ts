@@ -27,7 +27,17 @@ const HEADLESS = process.env.HEADLESS === 'true';
 const SLOW_MO = parseIntSafe(process.env.SLOW_MO, 0);
 
 // Check if BASE_URL points to localhost (to determine if we should start local server)
-const isLocalhost = BASE_URL.includes('localhost') || BASE_URL.includes('127.0.0.1');
+// Parse URL properly to avoid false positives (e.g., https://staging-localhost.example.com)
+const isLocalhost = (() => {
+  try {
+    const url = new URL(BASE_URL);
+    const hostname = url.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+  } catch {
+    // If BASE_URL is not a valid URL, assume it's not localhost to avoid starting server unexpectedly
+    return false;
+  }
+})();
 
 export default defineConfig({
   testDir: './e2e/tests',
