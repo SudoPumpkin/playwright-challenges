@@ -53,7 +53,7 @@ This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load envir
 | Variable               | Default                                  | Description                                                           | Status      |
 | ---------------------- | ---------------------------------------- | --------------------------------------------------------------------- | ----------- |
 | `PORT`                 | `3000`                                   | Port for the Express server                                           | ✅ Active   |
-| `BASE_URL`             | `http://localhost:${PORT}` (auto-synced) | Base URL for Playwright tests (defaults to PORT if not set)           | ✅ Active   |
+| `BASE_URL`             | `http://localhost:${PORT}` (auto-synced) | Base URL for Playwright tests. Auto-syncs with PORT for localhost. Use a remote URL (e.g., `https://staging.example.com`) to test against external servers (skips local webServer startup). | ✅ Active   |
 | `HEADLESS`             | `false`                                  | Run browser in headless mode                                          | ✅ Active   |
 | `SLOW_MO`              | `0`                                      | Slow down operations by N milliseconds (debugging)                    | ✅ Active   |
 | `DEFAULT_TIMEOUT`      | `120000`                                 | Overall test timeout (milliseconds)                                   | ✅ Active   |
@@ -72,9 +72,14 @@ This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load envir
 **Example `.env` file:**
 
 ```bash
+# Local Development (default)
 # Simple: Just change the port - BASE_URL automatically updates!
 PORT=3001
 # ✅ Result: Server runs on 3001, tests connect to http://localhost:3001
+
+# Remote Testing (e.g., staging environment)
+BASE_URL=https://staging.example.com
+# ✅ Result: Tests run against remote server, local webServer is NOT started
 
 # Advanced: Override BASE_URL independently (rarely needed)
 PORT=3001
@@ -88,13 +93,17 @@ HEADLESS=true
 SLOW_MO=100
 ```
 
-**Important:** `BASE_URL` automatically derives from `PORT` when not explicitly set. You typically only need to set `PORT`!
+**Important:**
+- `BASE_URL` automatically derives from `PORT` when not explicitly set. You typically only need to set `PORT`!
+- When `BASE_URL` points to a remote server (not localhost), the local webServer will **not** be started
+- This allows you to test against staging/production environments without starting a local server
 
 **How it works:**
 
 - Both `server.js` and `playwright.config.ts` automatically load environment variables from `.env`
 - Variables are accessible via `process.env.VARIABLE_NAME`
 - **`BASE_URL` automatically derives from `PORT`** when not explicitly set, keeping them in sync
+- The `webServer` configuration only starts when `BASE_URL` contains `localhost` or `127.0.0.1`
 - Fallback defaults are used when variables aren't set
 
 ### Security Best Practices
@@ -131,9 +140,6 @@ This keeps sensitive data encrypted and separate from your codebase.
 # Start the server (uses PORT from .env, defaults to 3000)
 npm start
 
-# Stop the server (automatically detects PORT from .env)
-npm run stop
-
 # Run tests in headed mode with chromium
 npm test
 
@@ -160,8 +166,6 @@ npm run format
 # Clean install (removes node_modules and reinstalls)
 npm run ready
 ```
-
-**Note on `npm run stop`**: This script reads the `PORT` environment variable from your `.env` file to ensure it stops the server on the correct port. If you've customized the port (e.g., `PORT=3001`), the stop script will automatically target that port.
 
 ## Challenges Overview
 

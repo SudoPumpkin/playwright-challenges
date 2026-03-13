@@ -26,6 +26,9 @@ const TRACE: TraceMode = ALLOWED_TRACE_VALUES.includes(TRACE_ENV as TraceMode)
 const HEADLESS = process.env.HEADLESS === 'true';
 const SLOW_MO = parseIntSafe(process.env.SLOW_MO, 0);
 
+// Check if BASE_URL points to localhost (to determine if we should start local server)
+const isLocalhost = BASE_URL.includes('localhost') || BASE_URL.includes('127.0.0.1');
+
 export default defineConfig({
   testDir: './e2e/tests',
   fullyParallel: false,
@@ -77,16 +80,20 @@ export default defineConfig({
   ],
 
   /**
-   * If the tests are being run on localhost, this configuration starts a web server.
+   * Run your local dev server before starting the tests.
+   * Only starts the server if BASE_URL points to localhost.
+   * For remote testing (e.g., BASE_URL=https://example.com), this is skipped.
    * See https://playwright.dev/docs/test-webserver#configuring-a-web-server
    */
-  webServer: {
-    command: 'npm start', // Start the UI server
-    url: BASE_URL,
-    ignoreHTTPSErrors: true,
-    timeout: 2 * 60 * 1000,
-    reuseExistingServer: true,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
+  webServer: isLocalhost
+    ? {
+        command: 'npm start', // Start the UI server
+        url: BASE_URL,
+        ignoreHTTPSErrors: true,
+        timeout: 2 * 60 * 1000,
+        reuseExistingServer: true,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    : undefined,
 });

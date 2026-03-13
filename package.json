@@ -10,7 +10,6 @@
     "ready": "rimraf dist node_modules package-lock.json && npm i",
     "lint": "cross-env eslint 'e2e/**/*.ts' 'playwright.config.ts'",
     "lint:fix": "cross-env eslint 'e2e/**/*.ts' 'playwright.config.ts' --fix",
-    "stop": "node scripts/stop-server.js",
     "format": "cross-env prettier --write 'e2e/**/*.ts' 'playwright.config.ts' '.eslintrc.js' '**/*.json' '**/*.md' '!package-lock.json' '!dist/**/*' '!build/**/*'"
   },
   "dependencies": {
