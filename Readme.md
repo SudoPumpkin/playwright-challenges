@@ -34,74 +34,57 @@ npm install
 
 ## Environment Configuration
 
-### Creating an `.env` File (Optional)
+### Using Environment Variables (Optional)
 
-For local development and testing, you can create a `.env` file in the project root to manage environment-specific configurations.
+This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load environment variables from a `.env` file. This allows you to customize server and test configuration for local development.
+
+**Setup:**
+
+1. Copy the `.env.example` template to create your own `.env` file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` to customize your local configuration (the file is already in `.gitignore`)
+
+**Available Environment Variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | Port for the Express server |
+| `BASE_URL` | `http://localhost:3000` | Base URL for Playwright tests |
+| `HEADLESS` | `false` | Run browser in headless mode |
+| `SLOW_MO` | `0` | Slow down operations by N milliseconds (debugging) |
+| `DEFAULT_TIMEOUT` | `120000` | Overall test timeout (milliseconds) |
+| `NAVIGATION_TIMEOUT` | `15000` | Page navigation timeout (milliseconds) |
+| `TRACE` | `retain-on-failure` | Trace mode: `on`, `off`, `retain-on-failure`, `on-first-retry` |
 
 **Example `.env` file:**
 
 ```bash
-# Server Configuration
-PORT=3000
-NODE_ENV=development
+# Change the server port
+PORT=3001
 
-# Test Configuration
-BASE_URL=http://localhost:3000
-HEADLESS=false
+# Run tests in headless mode
+HEADLESS=true
 
-# Test Credentials (for future authentication scenarios)
-TEST_USER_EMAIL=test@example.com
-TEST_USER_PASSWORD=password123
-
-# Timeouts (milliseconds)
-DEFAULT_TIMEOUT=30000
-NAVIGATION_TIMEOUT=10000
+# Slow down test execution for debugging
+SLOW_MO=100
 ```
 
-### Using Environment Variables in Tests
+**How it works:**
 
-Access environment variables in Playwright configuration:
-
-```typescript
-// playwright.config.ts
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const HEADLESS = process.env.HEADLESS === 'true';
-
-export default defineConfig({
-  use: {
-    baseURL: BASE_URL,
-    headless: HEADLESS,
-  },
-});
-```
-
-Access in test files:
-
-```typescript
-// In tests
-const testEmail = process.env.TEST_USER_EMAIL || 'default@example.com';
-```
+- Both `server.js` and `playwright.config.ts` automatically load environment variables from `.env`
+- Variables are accessible via `process.env.VARIABLE_NAME`
+- Fallback defaults are used when variables aren't set
 
 ### Security Best Practices
 
 ⚠️ **Important**: Never commit `.env` files to version control!
 
-1. Add `.env` to your `.gitignore`:
-   ```
-   .env
-   .env.local
-   .env.*.local
-   ```
+The `.env` file is already included in `.gitignore` to prevent accidental commits. The `.env.example` file serves as a template showing which variables are available.
 
-2. Create `.env.example` as a template:
-   ```bash
-   PORT=3000
-   BASE_URL=http://localhost:3000
-   TEST_USER_EMAIL=your-email@example.com
-   TEST_USER_PASSWORD=your-password
-   ```
-
-3. **For CI/CD pipelines**: Store real credentials in **GitHub Secrets** (Settings → Secrets and variables → Actions), then reference them in your workflow:
+**For CI/CD pipelines**: Environment variables can be set directly in GitHub Actions (Settings → Secrets and variables → Actions), then referenced in your workflow:
    ```yaml
    # .github/workflows/playwright.yml
    env:

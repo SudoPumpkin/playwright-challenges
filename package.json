@@ -14,6 +14,7 @@
     "format": "cross-env prettier --write 'e2e/**/*.ts' 'playwright.config.ts' '.eslintrc.js' '**/*.json' '**/*.md' '!package-lock.json' '!dist/**/*' '!build/**/*'"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "express": "^4.21.1"
   },
   "keywords": [],

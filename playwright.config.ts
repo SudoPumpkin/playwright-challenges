@@ -1,6 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
+import 'dotenv/config';
 
-const BASE_URL = 'http://localhost:3000';
+// Environment variables with fallback defaults
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const DEFAULT_TIMEOUT = parseInt(process.env.DEFAULT_TIMEOUT || '120000', 10);
+const NAVIGATION_TIMEOUT = parseInt(process.env.NAVIGATION_TIMEOUT || '15000', 10);
+const TRACE = (process.env.TRACE || 'retain-on-failure') as 'on' | 'off' | 'retain-on-failure' | 'on-first-retry';
+const HEADLESS = process.env.HEADLESS === 'true';
+const SLOW_MO = parseInt(process.env.SLOW_MO || '0', 10);
+
 export default defineConfig({
   testDir: './e2e/tests',
   fullyParallel: false,
@@ -8,7 +16,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 3 : 1,
   reporter: [['html', { open: 'never' }], ['dot']],
-  timeout: 2 * 60 * 1000,
+  timeout: DEFAULT_TIMEOUT,
   expect: {
     timeout: 5 * 1000,
   },
@@ -17,11 +25,11 @@ export default defineConfig({
     acceptDownloads: true,
     testIdAttribute: 'data-testid',
     baseURL: BASE_URL,
-    trace: 'retain-on-failure',
+    trace: TRACE,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 5 * 1000,
-    navigationTimeout: 15 * 1000,
+    navigationTimeout: NAVIGATION_TIMEOUT,
   },
 
   projects: [
@@ -31,8 +39,8 @@ export default defineConfig({
         viewport: null,
         launchOptions: {
           args: ['--disable-web-security', '--start-maximized'],
-          slowMo: 0,
-          headless: false,
+          slowMo: SLOW_MO,
+          headless: HEADLESS,
         },
       },
     },
@@ -44,7 +52,7 @@ export default defineConfig({
         viewport: { width: 1600, height: 1000 },
         launchOptions: {
           args: ['--disable-web-security'],
-          slowMo: 0,
+          slowMo: SLOW_MO,
           headless: true,
         },
       },
