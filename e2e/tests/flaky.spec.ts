@@ -1,5 +1,7 @@
 import { test } from '@playwright/test';
 import { Challenge1Helpers, Challenge2Helpers, Challenge3Helpers, Challenge4Helpers } from './helpers/page-helpers';
+// Page Objects available as alternative pattern (not currently used in tests, but available as reference)
+// import { Challenge1Page, Challenge2Page, Challenge3Page, Challenge4Page } from '../pages';
 
 // Challenge 1: Test logging in 3 times in a row without page refresh
 // Each login should display a success message, then the form should reset automatically

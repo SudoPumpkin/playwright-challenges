@@ -3,6 +3,7 @@
 - [Playwright Testing Challenges](#playwright-testing-challenges)
 - [Prerequisites](#prerequisites)
 - [Setup](#setup)
+- [Environment Configuration](#environment-configuration)
 - [Challenges Overview](#challenges-overview)
 - [Tests](#tests)
   - [Test Descriptions](#test-descriptions)
@@ -30,6 +31,93 @@ Install dependencies
 ```bash
 npm install
 ```
+
+## Environment Configuration
+
+### Creating an `.env` File (Optional)
+
+For local development and testing, you can create a `.env` file in the project root to manage environment-specific configurations.
+
+**Example `.env` file:**
+
+```bash
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Test Configuration
+BASE_URL=http://localhost:3000
+HEADLESS=false
+
+# Test Credentials (for future authentication scenarios)
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=password123
+
+# Timeouts (milliseconds)
+DEFAULT_TIMEOUT=30000
+NAVIGATION_TIMEOUT=10000
+```
+
+### Using Environment Variables in Tests
+
+Access environment variables in Playwright configuration:
+
+```typescript
+// playwright.config.ts
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const HEADLESS = process.env.HEADLESS === 'true';
+
+export default defineConfig({
+  use: {
+    baseURL: BASE_URL,
+    headless: HEADLESS,
+  },
+});
+```
+
+Access in test files:
+
+```typescript
+// In tests
+const testEmail = process.env.TEST_USER_EMAIL || 'default@example.com';
+```
+
+### Security Best Practices
+
+⚠️ **Important**: Never commit `.env` files to version control!
+
+1. Add `.env` to your `.gitignore`:
+   ```
+   .env
+   .env.local
+   .env.*.local
+   ```
+
+2. Create `.env.example` as a template:
+   ```bash
+   PORT=3000
+   BASE_URL=http://localhost:3000
+   TEST_USER_EMAIL=your-email@example.com
+   TEST_USER_PASSWORD=your-password
+   ```
+
+3. **For CI/CD pipelines**: Store real credentials in **GitHub Secrets** (Settings → Secrets and variables → Actions), then reference them in your workflow:
+   ```yaml
+   # .github/workflows/playwright.yml
+   env:
+     TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+     TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+   ```
+   This keeps sensitive data encrypted and separate from your codebase.
+
+**Note**: The current tests use hardcoded test data for simplicity since they test a demo app with no real authentication. In a production project with real credentials, you would **never hardcode them** - always use environment variables locally and GitHub Secrets in CI/CD.
+
+### Why Use Environment Variables?
+
+- **Flexibility**: Switch between environments (local, staging, production) without code changes
+- **Security**: Keep sensitive data (credentials, API keys) out of source code
+- **Team Collaboration**: Each developer can have their own local configuration
+- **CI/CD Integration**: Different settings for automated testing pipelines
 
 ## Challenges Overview
 
@@ -63,7 +151,7 @@ npm install
 
 ## Tests
 
-This project includes several tests to ensure the functionality of the animated form. The tests are written using Playwright and can be found in the `flaky.spec.ts` file.
+This project includes several tests to ensure the functionality of the animated form. The tests are written using Playwright and can be found in the `e2e/tests/flaky.spec.ts` file.
 
 ### Test Descriptions
 
@@ -71,6 +159,39 @@ This project includes several tests to ensure the functionality of the animated 
 - **Login and logout successfully with animated form and delayed loading**: This test logs in and logs out, handling animated forms and delayed loading.
 - **Forgot password**: This test verifies the forgot password functionality and checks for success messages.
 - **Login and logout**: This test logs in and logs out, ensuring the app is in a ready state before proceeding.
+
+### Project Structure
+
+This project uses **Helper Classes** (`e2e/tests/helpers/`) to organize test logic:
+- Encapsulates business logic and test workflows
+- Keeps tests clean and readable
+- Reusable across test files
+
+**Optional**: Page Object classes are also available in `e2e/pages/` as an alternative pattern for reference.
+
+#### Folder Structure
+
+```
+playwright-challenges/
+├── e2e/                        # End-to-end tests
+│   ├── pages/                  # Page Object classes (optional pattern)
+│   │   ├── base.page.ts       # Base class with common functionality
+│   │   ├── challenge*.page.ts # Challenge-specific page objects
+│   │   └── index.ts           # Centralized exports
+│   └── tests/
+│       ├── flaky.spec.ts      # Main test suite
+│       ├── global.d.ts        # TypeScript global type declarations
+│       └── helpers/
+│           ├── page-helpers.ts # Test helper classes
+│           └── selectors.ts    # Centralized element selectors
+├── public/                     # Challenge HTML pages
+│   ├── index.html             # Homepage
+│   └── challenge*.html        # Challenge pages
+├── .github/workflows/         # CI/CD configuration
+├── playwright.config.ts       # Playwright configuration
+├── tsconfig.json              # TypeScript configuration
+└── server.js                  # Express server
+```
 
 ### Running Tests
 
@@ -188,7 +309,7 @@ docker run --rm --network host -v $(pwd):/work -w /work -it mcr.microsoft.com/pl
 1. **No Static Waits**: We use smart waits (`waitForFunction`, `toBeVisible`, event listeners) instead of `page.waitForTimeout()`
 2. **Page Object Model**: Helper classes keep tests clean and maintainable
 3. **Centralized Selectors**: All locators in one file for easy updates
-4. **Type Safety**: Global type declarations in `tests/global.d.ts` for custom Window properties
+4. **Type Safety**: Global type declarations in `e2e/tests/global.d.ts` for custom Window properties
 5. **Multiple Assertions**: Verify multiple aspects of success (visibility, content, state changes)
 6. **Detailed Comments**: Every method explains WHY, not just WHAT
 7. **CI/CD Ready**: Tests run reliably in containerized environments with proper artifact management

@@ -204,7 +204,11 @@ export class Challenge4Helpers {
     // The app has a 500ms initialization delay before setting this to true
     // We also verify the email input is enabled to ensure the form is interactive
     // This double-check prevents race conditions where isAppReady is true but handlers aren't attached yet
-    await this.page.waitForFunction(() => window.isAppReady === true);
+
+    // Wait for the global isAppReady flag with increased timeout
+    // Increased from default 5s to 10s to handle rare slow script execution in CI/CD
+    // This is more reliable than networkidle which can cause long waits in CI environments
+    await this.page.waitForFunction(() => window.isAppReady === true, { timeout: 10000 });
     await expect(this.page.locator(selectors.challenge4.email)).toBeEnabled();
   }
 
