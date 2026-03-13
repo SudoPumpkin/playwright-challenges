@@ -32,7 +32,7 @@ const isLocalhost = (() => {
   try {
     const url = new URL(BASE_URL);
     const hostname = url.hostname;
-    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
   } catch {
     // If BASE_URL is not a valid URL, assume it's not localhost to avoid starting server unexpectedly
     return false;

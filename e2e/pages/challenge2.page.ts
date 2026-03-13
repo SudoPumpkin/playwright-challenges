@@ -90,6 +90,7 @@ export class Challenge2Page extends BasePage {
   }
 
   async submitForm() {
+    await this.waitForButtonAnimation();
     await this.clickSubmit();
   }
 
