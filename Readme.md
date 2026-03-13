@@ -41,6 +41,7 @@ This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load envir
 **Setup:**
 
 1. Copy the `.env.example` template to create your own `.env` file:
+
    ```bash
    cp .env.example .env
    ```
@@ -49,21 +50,36 @@ This project uses [`dotenv`](https://www.npmjs.com/package/dotenv) to load envir
 
 **Available Environment Variables:**
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3000` | Port for the Express server |
-| `BASE_URL` | `http://localhost:3000` | Base URL for Playwright tests |
-| `HEADLESS` | `false` | Run browser in headless mode |
-| `SLOW_MO` | `0` | Slow down operations by N milliseconds (debugging) |
-| `DEFAULT_TIMEOUT` | `120000` | Overall test timeout (milliseconds) |
-| `NAVIGATION_TIMEOUT` | `15000` | Page navigation timeout (milliseconds) |
-| `TRACE` | `retain-on-failure` | Trace mode: `on`, `off`, `retain-on-failure`, `on-first-retry` |
+| Variable               | Default                                  | Description                                                           | Status      |
+| ---------------------- | ---------------------------------------- | --------------------------------------------------------------------- | ----------- |
+| `PORT`                 | `3000`                                   | Port for the Express server                                           | ✅ Active   |
+| `BASE_URL`             | `http://localhost:${PORT}` (auto-synced) | Base URL for Playwright tests (defaults to PORT if not set)           | ✅ Active   |
+| `HEADLESS`             | `false`                                  | Run browser in headless mode                                          | ✅ Active   |
+| `SLOW_MO`              | `0`                                      | Slow down operations by N milliseconds (debugging)                    | ✅ Active   |
+| `DEFAULT_TIMEOUT`      | `120000`                                 | Overall test timeout (milliseconds)                                   | ✅ Active   |
+| `NAVIGATION_TIMEOUT`   | `15000`                                  | Page navigation timeout (milliseconds)                                | ✅ Active   |
+| `TRACE`                | `retain-on-failure`                      | Trace mode: `on`, `off`, `retain-on-failure`, `on-first-retry`       | ✅ Active   |
+| `NODE_ENV`             | `development`                            | Environment mode (development/production)                             | 📝 Template |
+| `BROWSER`              | `chromium`                               | Browser to use (chromium/firefox/webkit)                              | 📝 Template |
+| `DEBUG`                | `false`                                  | Enable debug mode                                                     | 📝 Template |
+| `TEST_USER_EMAIL`      | `test@example.com`                       | Test user email (for future authentication scenarios)                 | 📝 Template |
+| `TEST_USER_PASSWORD`   | `password123`                            | Test user password (for future authentication scenarios)              | 📝 Template |
+
+**Legend:**
+- ✅ **Active**: Currently used by the application
+- 📝 **Template**: Available for future use or customization (not currently used)
 
 **Example `.env` file:**
 
 ```bash
-# Change the server port
+# Simple: Just change the port - BASE_URL automatically updates!
 PORT=3001
+# ✅ Result: Server runs on 3001, tests connect to http://localhost:3001
+
+# Advanced: Override BASE_URL independently (rarely needed)
+PORT=3001
+BASE_URL=http://localhost:3001
+# Note: Only needed if BASE_URL should differ from http://localhost:${PORT}
 
 # Run tests in headless mode
 HEADLESS=true
@@ -72,10 +88,13 @@ HEADLESS=true
 SLOW_MO=100
 ```
 
+**Important:** `BASE_URL` automatically derives from `PORT` when not explicitly set. You typically only need to set `PORT`!
+
 **How it works:**
 
 - Both `server.js` and `playwright.config.ts` automatically load environment variables from `.env`
 - Variables are accessible via `process.env.VARIABLE_NAME`
+- **`BASE_URL` automatically derives from `PORT`** when not explicitly set, keeping them in sync
 - Fallback defaults are used when variables aren't set
 
 ### Security Best Practices
@@ -85,13 +104,15 @@ SLOW_MO=100
 The `.env` file is already included in `.gitignore` to prevent accidental commits. The `.env.example` file serves as a template showing which variables are available.
 
 **For CI/CD pipelines**: Environment variables can be set directly in GitHub Actions (Settings → Secrets and variables → Actions), then referenced in your workflow:
-   ```yaml
-   # .github/workflows/playwright.yml
-   env:
-     TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
-     TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-   ```
-   This keeps sensitive data encrypted and separate from your codebase.
+
+```yaml
+# .github/workflows/playwright.yml
+env:
+  TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+  TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+```
+
+This keeps sensitive data encrypted and separate from your codebase.
 
 **Note**: The current tests use hardcoded test data for simplicity since they test a demo app with no real authentication. In a production project with real credentials, you would **never hardcode them** - always use environment variables locally and GitHub Secrets in CI/CD.
 
@@ -101,6 +122,46 @@ The `.env` file is already included in `.gitignore` to prevent accidental commit
 - **Security**: Keep sensitive data (credentials, API keys) out of source code
 - **Team Collaboration**: Each developer can have their own local configuration
 - **CI/CD Integration**: Different settings for automated testing pipelines
+
+## Available Scripts
+
+### Development Scripts
+
+```bash
+# Start the server (uses PORT from .env, defaults to 3000)
+npm start
+
+# Stop the server (automatically detects PORT from .env)
+npm run stop
+
+# Run tests in headed mode with chromium
+npm test
+
+# Run tests in headless mode
+npm run test:chromium-headless
+```
+
+### Code Quality Scripts
+
+```bash
+# Run eslint
+npm run lint
+
+# Run eslint with auto-fix
+npm run lint:fix
+
+# Format code with prettier
+npm run format
+```
+
+### Utility Scripts
+
+```bash
+# Clean install (removes node_modules and reinstalls)
+npm run ready
+```
+
+**Note on `npm run stop`**: This script reads the `PORT` environment variable from your `.env` file to ensure it stops the server on the correct port. If you've customized the port (e.g., `PORT=3001`), the stop script will automatically target that port.
 
 ## Challenges Overview
 
@@ -146,6 +207,7 @@ This project includes several tests to ensure the functionality of the animated 
 ### Project Structure
 
 This project uses **Helper Classes** (`e2e/tests/helpers/`) to organize test logic:
+
 - Encapsulates business logic and test workflows
 - Keeps tests clean and readable
 - Reusable across test files
@@ -267,22 +329,28 @@ docker run --rm --network host -v $(pwd):/work -w /work -it mcr.microsoft.com/pl
 ### How We Fixed the Flaky Tests
 
 #### Challenge 1: Form Reset Timing
+
 **Problem**: Tests failed when running multiple logins because they didn't wait for the form to reset.
 **Solution**: Added `waitForFormReset()` that waits for the success message to disappear AND the email field to clear.
 
 #### Challenge 2: Animation & Initialization Delays
+
 **Problem**: Two timing issues - 7-second button animation and 1-second menu initialization.
-**Solution**: 
-- Used browser's Animation API with `animationend` event listener (no static waits!)
+**Solution**:
+
+- Used browser's Animation API with `Animation.finished` promise (no static waits!)
 - Checked for `data-initialized="true"` attribute to confirm menu is ready
 
 #### Challenge 3: Form Transitions
+
 **Problem**: The same form element changes from Login to Reset Password, causing confusion.
 **Solution**: Wait for the heading to change to "Reset Password" before interacting with the form.
 
 #### Challenge 4: Dynamic Script Loading (Trickiest!)
+
 **Problem**: jQuery loads with `defer` attribute, event handlers attach after 500ms delay.
-**Solution**: 
+**Solution**:
+
 - Check `window.isAppReady` global variable
 - Use `pressSequentially()` with 50ms delay instead of `fill()` to give handlers time to fully attach
 - This combination eliminates race conditions

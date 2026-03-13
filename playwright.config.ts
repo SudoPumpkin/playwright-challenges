@@ -1,13 +1,30 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
 
+// Helper function to safely parse integers with fallback
+function parseIntSafe(value: string | undefined, defaultValue: number): number {
+  if (!value) return defaultValue;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+}
+
 // Environment variables with fallback defaults
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const DEFAULT_TIMEOUT = parseInt(process.env.DEFAULT_TIMEOUT || '120000', 10);
-const NAVIGATION_TIMEOUT = parseInt(process.env.NAVIGATION_TIMEOUT || '15000', 10);
-const TRACE = (process.env.TRACE || 'retain-on-failure') as 'on' | 'off' | 'retain-on-failure' | 'on-first-retry';
+// Derive BASE_URL from PORT to keep them in sync when PORT is customized
+const PORT = process.env.PORT || '3000';
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const DEFAULT_TIMEOUT = parseIntSafe(process.env.DEFAULT_TIMEOUT, 120000);
+const NAVIGATION_TIMEOUT = parseIntSafe(process.env.NAVIGATION_TIMEOUT, 15000);
+
+// Validate TRACE against allowed values with runtime type checking
+const ALLOWED_TRACE_VALUES: TraceMode[] = ['on', 'off', 'retain-on-failure', 'on-first-retry'];
+type TraceMode = 'on' | 'off' | 'retain-on-failure' | 'on-first-retry';
+const TRACE_ENV = process.env.TRACE || 'retain-on-failure';
+const TRACE: TraceMode = ALLOWED_TRACE_VALUES.includes(TRACE_ENV as TraceMode)
+  ? (TRACE_ENV as TraceMode)
+  : 'retain-on-failure';
+
 const HEADLESS = process.env.HEADLESS === 'true';
-const SLOW_MO = parseInt(process.env.SLOW_MO || '0', 10);
+const SLOW_MO = parseIntSafe(process.env.SLOW_MO, 0);
 
 export default defineConfig({
   testDir: './e2e/tests',

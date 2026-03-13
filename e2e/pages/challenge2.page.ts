@@ -60,19 +60,28 @@ export class Challenge2Page extends BasePage {
 
   /**
    * Wait for the submit button's CSS animation to complete
-   * Why: The button slides across the screen for 7 seconds before it's clickable
-   * We use the browser's Animation API to detect precisely when animation ends
+   *
+   * Why locator.evaluate() instead of Playwright's Animation API:
+   * - Challenge 2's button uses CSS transform animation (translateX)
+   * - Playwright's page.waitForLoadState('networkidle') can't detect CSS animations
+   * - We need the browser's native getAnimations() API to detect transform animations
+   * - This ensures we only click when the button is truly ready (stable position)
+   *
+   * Technical details:
+   * - The button slides across screen for 7 seconds (CSS @keyframes animation)
+   * - getAnimations() correctly detects CSS transform/opacity animations
+   * - Animation.finished is a Promise that resolves when animation completes
+   * - If no animations are running, Promise.all([]) resolves immediately (idempotent)
+   *
+   * Alternative considered: page.waitForTimeout(7000)
+   * - Rejected: Fragile, breaks if animation duration changes
+   * - This approach is self-documenting and robust
    */
   async waitForButtonAnimation() {
     // eslint-disable-next-line playwright/no-eval
     await this.submitButton.evaluate(button => {
-      return new Promise<void>(resolve => {
-        if (button.getAnimations().length === 0) {
-          resolve();
-        } else {
-          button.addEventListener('animationend', () => resolve(), { once: true });
-        }
-      });
+      const animations = button.getAnimations();
+      return Promise.all(animations.map(animation => animation.finished));
     });
   }
 
