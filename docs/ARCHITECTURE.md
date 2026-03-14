@@ -220,7 +220,7 @@ export {};
 ```
 
 **Why It Works:**
-- Included automatically via `tsconfig.json` (`include: ["e2e/**/*.ts"]`)
+- Make sure it's included via `tsconfig.json` (for example: `include: ["e2e/**/*.ts", "e2e/tests/global.d.ts"]`)
 - No explicit imports needed
 - Prevents TypeScript errors when accessing `window.isAppReady`
 
@@ -230,7 +230,7 @@ export {};
 
 ```json
 "paths": {
-  "@pages/*": ["e2e/tests/pages/*"],
+  "@pages/*": ["e2e/pages/*"],
   "@testdata/*": ["e2e/tests/testdata/*"],
   "@fixturesetup": ["e2e/tests/fixtures/testFixtures"],
   "@pagesetup": ["test-setup/page-setup"],

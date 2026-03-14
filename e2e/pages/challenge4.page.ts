@@ -59,8 +59,8 @@ export class Challenge4Page extends BasePage {
    * Also verify email input is enabled to prevent race conditions
    */
   async waitForAppReady() {
-    await this.page.waitForFunction(() => window.isAppReady === true);
-    await expect(this.emailInput).toBeEnabled();
+    await this.page.waitForFunction(() => window.isAppReady === true, undefined, { timeout: 10_000 });
+    await expect(this.emailInput).toBeEnabled({ timeout: 10_000 });
   }
 
   // Actions

@@ -81,4 +81,4 @@ MIT License - feel free to use this for learning and practice.
 
 ---
 
-**Need more detail?** Check out the [full documentation](docs/) in the `docs/` folder.
+**Need more detail?** Check out the [full documentation](docs/SETUP.md) in the `docs/` folder.

@@ -10,7 +10,7 @@
     "moduleResolution": "node", // Uses Node.js logic for traversing the directory tree to find the modules
     "resolveJsonModule": true, // Allows importing JSON files and accessing the data through 'import'
     "paths": {
-      "@pages/*": ["e2e/tests/pages/*", "examples/sauce-demo-tests-using-functions/pages/*"],
+      "@pages/*": ["e2e/pages/*"],
       "@testdata/*": ["e2e/tests/testdata/*"],
       "@fixturesetup": ["e2e/tests/fixtures/testFixtures"],
       "@pagesetup": ["test-setup/page-setup"],
@@ -45,6 +45,6 @@
     // Completeness
     "skipLibCheck": true // Skips the type checking of '.d.ts' files for faster compilation times
   },
-  "include": ["e2e/**/*.ts", "playwright.config.ts", ".eslintrc.js"],
+  "include": ["e2e/**/*.ts", "e2e/tests/global.d.ts", "playwright.config.ts", ".eslintrc.js"],
   "exclude": ["node_modules"] // Node_modules are excluded by default, but explicitly specified here for further exclusions as needed in your project
 }
