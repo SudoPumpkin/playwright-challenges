@@ -29,7 +29,7 @@ async waitForFormReset() {
 }
 ```
 
-### Key Learnings
+### Key Take Aways
 - Don't assume UI is ready just because an element disappears
 - Verify multiple state indicators before proceeding
 - Form resets can be asynchronous
@@ -102,7 +102,7 @@ async waitForResetPasswordForm() {
 }
 ```
 
-### Key Learnings
+### Key Take Aways
 - DOM elements can transform instead of being replaced
 - Use heading/title changes as reliable indicators of state transitions
 - Wait for the NEW state to be fully rendered before interacting
@@ -139,7 +139,7 @@ async login(email: string, password: string) {
 }
 ```
 
-### Key Learnings
+### Key Take Aways
 - Even after global state indicates "ready", there can be race conditions
 - `pressSequentially()` with 50ms delay mimics real user behavior
 - `.fill()` is instant and can outpace event handler attachment
