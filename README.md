@@ -25,7 +25,7 @@ npm test
 
 ## 🎯 The Challenges
 
-| Challenge | Focus Area | Key Learning |
+| Challenge | Focus Area | Key Take Aways |
 |-----------|-----------|-------------|
 | **Challenge 1** | Form Reset Timing | Waiting for dynamic content to reset |
 | **Challenge 2** | Animations | Handling CSS animations without static waits |
@@ -64,7 +64,7 @@ playwright-challenges/
 └── server.js
 ```
 
-## 💡 Key Learnings
+## 💡 Key Take Aways
 
 This project demonstrates:
 - ✅ **No static waits** - Smart waiting strategies instead of `page.waitForTimeout()`
