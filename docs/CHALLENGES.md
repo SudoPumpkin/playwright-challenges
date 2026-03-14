@@ -211,4 +211,4 @@ await page.waitForFunction(() => window.isAppReady === true);
 
 ---
 
-[← Back to Main README](../README.md) | [Next: Architecture →](ARCHITECTURE.md)
+[← Back to Main README](../README.md) | [← Previous: CI_CD](CI_CD.md) | [Next: Architecture →](ARCHITECTURE.md)
