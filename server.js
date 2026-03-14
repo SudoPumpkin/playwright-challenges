@@ -3,7 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 3000;
+const envPort = Number.parseInt(process.env.PORT, 10);
+const port = Number.isNaN(envPort) ? 3000 : envPort;
 
 app.use(express.static('public'));
 

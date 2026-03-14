@@ -7,19 +7,23 @@ import { BasePage } from './base.page';
  * We need to wait for DOM changes before interacting with the new form state
  */
 export class Challenge3Page extends BasePage {
-  // Locators
+  // Locators - Using hybrid approach for better resilience and readability
+  // Navigation link - use getByRole for semantic element
   private get challengeLink(): Locator {
     return this.page.getByRole('link', { name: 'Try Challenge 3' });
   }
 
+  // Form input - use getByLabel for accessible form field
   private get emailInput(): Locator {
-    return this.page.locator('#email');
+    return this.page.getByLabel('Email');
   }
 
+  // Buttons - use getByRole for semantic buttons
   private get forgotPasswordButton(): Locator {
     return this.page.getByRole('button', { name: 'Forgot Password?' });
   }
 
+  // Headings - already using getByRole (perfect!)
   private get resetPasswordHeading(): Locator {
     return this.page.getByRole('heading', { name: 'Reset Password' });
   }
@@ -32,6 +36,7 @@ export class Challenge3Page extends BasePage {
     return this.page.getByRole('heading', { name: 'Success!' });
   }
 
+  // Container element - use locator for non-semantic div
   private get mainContent(): Locator {
     return this.page.locator('#mainContent');
   }

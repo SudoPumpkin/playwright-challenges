@@ -11,25 +11,27 @@ import { BasePage } from './base.page';
  * - Helper class = "What SHOULD I do for this test scenario?" (business logic)
  */
 export class Challenge1Page extends BasePage {
-  // Locators - defined as getters for lazy evaluation
-  // Why: Getters ensure locators are fresh on each access, avoiding stale element issues
-
+  // Locators - Using hybrid approach for better resilience and readability
+  // Navigation link - use getByRole for semantic element
   private get challengeLink(): Locator {
     return this.page.getByRole('link', { name: 'Try Challenge 1' });
   }
 
+  // Form inputs - use getByLabel for accessible form fields
   private get emailInput(): Locator {
-    return this.page.locator('#email');
+    return this.page.getByLabel('Email');
   }
 
   private get passwordInput(): Locator {
-    return this.page.locator('#password');
+    return this.page.getByLabel('Password');
   }
 
+  // Submit button - use getByRole for semantic button
   private get submitButton(): Locator {
-    return this.page.locator('#submitButton');
+    return this.page.getByRole('button', { name: 'Sign In' });
   }
 
+  // Success message container - use locator for non-semantic div
   private get successMessage(): Locator {
     return this.page.locator('#successMessage');
   }

@@ -8,23 +8,27 @@ import { BasePage } from './base.page';
  * This is the trickiest challenge requiring both global variable check AND slow typing
  */
 export class Challenge4Page extends BasePage {
-  // Locators
+  // Locators - Using hybrid approach for better resilience and readability
+  // Navigation link - use getByRole for semantic element
   private get challengeLink(): Locator {
     return this.page.getByRole('link', { name: 'Try Challenge 4' });
   }
 
+  // Form inputs - use getByLabel for accessible form fields
   private get emailInput(): Locator {
-    return this.page.locator('#email');
+    return this.page.getByLabel('Email');
   }
 
   private get passwordInput(): Locator {
-    return this.page.locator('#password');
+    return this.page.getByLabel('Password');
   }
 
+  // Submit button - use getByRole for semantic button
   private get submitButton(): Locator {
-    return this.page.locator('#submitButton');
+    return this.page.getByRole('button', { name: 'Sign In' });
   }
 
+  // Container elements - use getByTestId (would need data-testid) or locator for non-semantic divs
   private get userProfile(): Locator {
     return this.page.locator('#userProfile');
   }
@@ -37,8 +41,9 @@ export class Challenge4Page extends BasePage {
     return this.page.locator('#loginForm');
   }
 
+  // Logout menu item - use getByRole for button-like menu item
   private get logoutButton(): Locator {
-    return this.page.locator('#logoutOption');
+    return this.page.getByText('Logout');
   }
 
   // Navigation

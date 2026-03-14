@@ -8,33 +8,39 @@ import { BasePage } from './base.page';
  * 2. 1-second menu button initialization after login
  */
 export class Challenge2Page extends BasePage {
-  // Locators
+  // Locators - Using hybrid approach for better resilience and readability
+  // Navigation link - use getByRole for semantic element
   private get challengeLink(): Locator {
     return this.page.getByRole('link', { name: 'Try Challenge 2' });
   }
 
+  // Form inputs - use getByLabel for accessible form fields
   private get emailInput(): Locator {
-    return this.page.locator('#email');
+    return this.page.getByLabel('Email');
   }
 
   private get passwordInput(): Locator {
-    return this.page.locator('#password');
+    return this.page.getByLabel('Password');
   }
 
+  // Submit button - use getByRole for semantic button
   private get submitButton(): Locator {
-    return this.page.locator('#submitButton');
+    return this.page.getByRole('button', { name: 'Sign In' });
   }
 
+  // Menu button - use getByRole for semantic button
   private get menuButton(): Locator {
-    return this.page.locator('#menuButton');
+    return this.page.getByRole('button', { name: 'My Account' });
   }
 
+  // Menu button with initialization check - use locator for attribute selector
   private get menuButtonInitialized(): Locator {
     return this.page.locator('#menuButton[data-initialized="true"]');
   }
 
+  // Logout menu item - use getByText for text-based selection
   private get logoutOption(): Locator {
-    return this.page.locator('#logoutOption');
+    return this.page.getByText('Logout');
   }
 
   // Navigation
