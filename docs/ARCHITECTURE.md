@@ -273,4 +273,4 @@ import { Challenge1Page } from '@pages/challenge1.page';
 
 ---
 
-[← Back to Main README](../README.md) | [← Previous: Challenges](CHALLENGES.md) | [Next: CI/CD →](CI_CD.md)
+[← Back to Main README](../README.md) | [← Previous: Challenges](CHALLENGES.md) | [Next: Setup →](SETUP.md)
