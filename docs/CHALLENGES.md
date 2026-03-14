@@ -73,7 +73,7 @@ async waitForMenuButtonReady() {
 }
 ```
 
-### Key Learnings
+### Key Take Aways
 - Playwright's built-in actionability checks can't detect CSS transform animations
 - `Animation.finished` is a Promise that resolves when animations complete
 - If no animations are running, `Promise.all([])` resolves immediately (idempotent)
