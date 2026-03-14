@@ -8,12 +8,12 @@
     "test": "playwright test --headed --project=chromium",
     "postinstall": "playwright install chromium",
     "ready": "rimraf dist node_modules package-lock.json && npm i",
-    "lint": "cross-env eslint 'tests/**/*.ts' 'playwright.config.ts'",
-    "lint:fix": "cross-env eslint 'tests/**/*.ts' 'playwright.config.ts' --fix",
-    "stop": "lsof -t -i :3000 | xargs kill -9",
-    "format": "cross-env prettier --write 'tests/**/*.ts' 'playwright.config.ts' '.eslintrc.js' '**/*.json' '**/*.md' '!package-lock.json' '!dist/**/*' '!build/**/*'"
+    "lint": "cross-env eslint 'e2e/**/*.ts' 'playwright.config.ts'",
+    "lint:fix": "cross-env eslint 'e2e/**/*.ts' 'playwright.config.ts' --fix",
+    "format": "cross-env prettier --write 'e2e/**/*.ts' 'playwright.config.ts' '.eslintrc.js' '**/*.json' '**/*.md' '!package-lock.json' '!dist/**/*' '!build/**/*'"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "express": "^4.21.1"
   },
   "keywords": [],

@@ -1,14 +1,52 @@
 import { defineConfig, devices } from '@playwright/test';
+import 'dotenv/config';
 
-const BASE_URL = 'http://localhost:3000';
+// Helper function to safely parse integers with fallback
+function parseIntSafe(value: string | undefined, defaultValue: number): number {
+  if (!value) return defaultValue;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+}
+
+// Environment variables with fallback defaults
+// Derive BASE_URL from PORT to keep them in sync when PORT is customized
+const PORT = parseIntSafe(process.env.PORT, 3000);
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const DEFAULT_TIMEOUT = parseIntSafe(process.env.DEFAULT_TIMEOUT, 120000);
+const NAVIGATION_TIMEOUT = parseIntSafe(process.env.NAVIGATION_TIMEOUT, 15000);
+
+// Validate TRACE against allowed values with runtime type checking
+const ALLOWED_TRACE_VALUES: TraceMode[] = ['on', 'off', 'retain-on-failure', 'on-first-retry'];
+type TraceMode = 'on' | 'off' | 'retain-on-failure' | 'on-first-retry';
+const TRACE_ENV = process.env.TRACE || 'retain-on-failure';
+const TRACE: TraceMode = ALLOWED_TRACE_VALUES.includes(TRACE_ENV as TraceMode)
+  ? (TRACE_ENV as TraceMode)
+  : 'retain-on-failure';
+
+const HEADLESS = process.env.HEADLESS === 'true';
+const SLOW_MO = parseIntSafe(process.env.SLOW_MO, 0);
+
+// Check if BASE_URL points to localhost (to determine if we should start local server)
+// Parse URL properly to avoid false positives (e.g., https://staging-localhost.example.com)
+const isLocalhost = (() => {
+  try {
+    const url = new URL(BASE_URL);
+    const hostname = url.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  } catch {
+    // If BASE_URL is not a valid URL, assume it's not localhost to avoid starting server unexpectedly
+    return false;
+  }
+})();
+
 export default defineConfig({
-  testDir: './tests',
+  testDir: './e2e/tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 3 : 1,
   reporter: [['html', { open: 'never' }], ['dot']],
-  timeout: 2 * 60 * 1000,
+  timeout: DEFAULT_TIMEOUT,
   expect: {
     timeout: 5 * 1000,
   },
@@ -17,11 +55,11 @@ export default defineConfig({
     acceptDownloads: true,
     testIdAttribute: 'data-testid',
     baseURL: BASE_URL,
-    trace: 'retain-on-failure',
+    trace: TRACE,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 5 * 1000,
-    navigationTimeout: 15 * 1000,
+    navigationTimeout: NAVIGATION_TIMEOUT,
   },
 
   projects: [
@@ -31,8 +69,8 @@ export default defineConfig({
         viewport: null,
         launchOptions: {
           args: ['--disable-web-security', '--start-maximized'],
-          slowMo: 0,
-          headless: false,
+          slowMo: SLOW_MO,
+          headless: HEADLESS,
         },
       },
     },
@@ -44,7 +82,7 @@ export default defineConfig({
         viewport: { width: 1600, height: 1000 },
         launchOptions: {
           args: ['--disable-web-security'],
-          slowMo: 0,
+          slowMo: SLOW_MO,
           headless: true,
         },
       },
@@ -52,16 +90,23 @@ export default defineConfig({
   ],
 
   /**
-   * If the tests are being run on localhost, this configuration starts a web server.
+   * Automatically starts the local dev server for Playwright tests
+   * when BASE_URL points to localhost.
+   * In that case, Playwright runs `npm start` before the tests and
+   * reuses an existing server if possible.
+   * For remote testing (e.g., BASE_URL=https://example.com), no
+   * server is started and tests run against that URL.
    * See https://playwright.dev/docs/test-webserver#configuring-a-web-server
    */
-  webServer: {
-    command: 'npm start', // Start the UI server
-    url: BASE_URL,
-    ignoreHTTPSErrors: true,
-    timeout: 2 * 60 * 1000,
-    reuseExistingServer: true,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
+  webServer: isLocalhost
+    ? {
+        command: 'npm start', // Start the UI server
+        url: BASE_URL,
+        ignoreHTTPSErrors: true,
+        timeout: 2 * 60 * 1000,
+        reuseExistingServer: true,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    : undefined,
 });

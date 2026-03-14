@@ -88,24 +88,21 @@ export class Challenge2Helpers {
 
   async waitForButtonAnimation() {
     // Why: The submit button has a 7-second CSS animation that slides it across the screen
-    // We use evaluate() to access the browser's Animation API to detect when animation completes
-    // This is better than a static wait because it's precise and returns immediately when animation ends
-    // Note: We can't rely on Playwright's built-in actionability checks here because the button
-    // is visible and attached to DOM during animation, but not in the correct position to click.
-    // Using the animationend event is the most reliable way to wait for CSS animations.
+    // We use evaluate() to access the browser's native Animation API to detect when animation completes
+    // This is better than a static wait because it's precise and returns immediately when done
+    //
+    // Technical explanation:
+    // - Playwright's built-in actionability checks can't detect CSS transform animations
+    // - The button is visible and attached to DOM during animation, but not in correct position
+    // - getAnimations() returns all running CSS animations on the element
+    // - Animation.finished is a Promise that resolves when each animation completes
+    // - Promise.all() waits for all animations to finish (handles multiple animations gracefully)
+    // - If no animations are running, Promise.all([]) resolves immediately (idempotent)
     const submitButton = this.page.locator(selectors.challenge2.submitButton);
     // eslint-disable-next-line playwright/no-eval
-    await submitButton.evaluate(button => {
-      return new Promise<void>(resolve => {
-        if (button.getAnimations().length === 0) {
-          // Why: If no animations are running, resolve immediately (already animated)
-          resolve();
-        } else {
-          // Why: Listen for the 'animationend' event to know precisely when animation finishes
-          // 'once: true' ensures the listener is removed after firing to prevent memory leaks
-          button.addEventListener('animationend', () => resolve(), { once: true });
-        }
-      });
+    await submitButton.evaluate(async button => {
+      const animations = button.getAnimations();
+      await Promise.all(animations.map(animation => animation.finished));
     });
   }
 
@@ -204,7 +201,11 @@ export class Challenge4Helpers {
     // The app has a 500ms initialization delay before setting this to true
     // We also verify the email input is enabled to ensure the form is interactive
     // This double-check prevents race conditions where isAppReady is true but handlers aren't attached yet
-    await this.page.waitForFunction(() => window.isAppReady === true);
+
+    // Wait for the global isAppReady flag with increased timeout
+    // Increased from default 5s to 10s to handle rare slow script execution in CI/CD
+    // This is more reliable than networkidle which can cause long waits in CI environments
+    await this.page.waitForFunction(() => window.isAppReady === true, { timeout: 10000 });
     await expect(this.page.locator(selectors.challenge4.email)).toBeEnabled();
   }
 
