@@ -144,4 +144,4 @@ docker run --rm --network host -v $(pwd):/work -w /work -it mcr.microsoft.com/pl
 
 ---
 
-[← Back to Main README](../README.md) | [Next: CI_CD →](CI_CD.md)
+[← Back to Main README](../README.md) | [← Back to Architecture](ARCHITECTURE.md) | [Next: CI_CD →](CI_CD.md)
