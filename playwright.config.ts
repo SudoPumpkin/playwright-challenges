@@ -10,7 +10,7 @@ function parseIntSafe(value: string | undefined, defaultValue: number): number {
 
 // Environment variables with fallback defaults
 // Derive BASE_URL from PORT to keep them in sync when PORT is customized
-const PORT = process.env.PORT || '3000';
+const PORT = parseIntSafe(process.env.PORT, 3000);
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const DEFAULT_TIMEOUT = parseIntSafe(process.env.DEFAULT_TIMEOUT, 120000);
 const NAVIGATION_TIMEOUT = parseIntSafe(process.env.NAVIGATION_TIMEOUT, 15000);
@@ -90,9 +90,12 @@ export default defineConfig({
   ],
 
   /**
-   * Run your local dev server before starting the tests.
-   * Only starts the server if BASE_URL points to localhost.
-   * For remote testing (e.g., BASE_URL=https://example.com), this is skipped.
+   * Automatically starts the local dev server for Playwright tests
+   * when BASE_URL points to localhost.
+   * In that case, Playwright runs `npm start` before the tests and
+   * reuses an existing server if possible.
+   * For remote testing (e.g., BASE_URL=https://example.com), no
+   * server is started and tests run against that URL.
    * See https://playwright.dev/docs/test-webserver#configuring-a-web-server
    */
   webServer: isLocalhost
