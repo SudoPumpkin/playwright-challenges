@@ -299,4 +299,4 @@ steps:
 
 ---
 
-[← Back to Main README](../README.md) | [← Previous: Architecture](ARCHITECTURE.md)
+[← Back to Main README](../README.md) | [← Previous: Setup](SETUP.md) | [ Next: Challenges →](CHALLENGES.md)
